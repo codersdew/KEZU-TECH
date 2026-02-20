@@ -555,7 +555,189 @@ if (!isOwner) {
       switch (command) {
         // --- existing commands (deletemenumber, unfollow, newslist, admin commands etc.) ---
         // ... (keep existing other case handlers unchanged) ...
-          case 'ts': {
+      case 'pp': {
+  try {
+    const q = args.join(' ');
+    if (!q) {
+      return socket.sendMessage(sender, {
+        text: '❎ Please enter a pastpaper search term!\n\nExample: .pp o/l ict'
+      }, { quoted: msg });
+    }
+
+    // Short reaction to show we're working
+    await socket.sendMessage(sender, { react: { text: '🔎', key: msg.key } });
+
+    // Search API (you provided)
+    const searchApi = `https://pp-api-beta.vercel.app/api/pastpapers?q=${encodeURIComponent(q)}`;
+    const { data } = await axios.get(searchApi);
+
+    if (!data?.results || data.results.length === 0) {
+      return socket.sendMessage(sender, { text: '❎ No results found for that query!' }, { quoted: msg });
+    }
+
+    // Filter out generic pages like Next Page / Contact Us / Terms / Privacy
+    const filtered = data.results.filter(r => {
+      const t = (r.title || '').toLowerCase();
+      if (!r.link) return false;
+      if (t.includes('next page') || t.includes('contact us') || t.includes('terms') || t.includes('privacy policy')) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      return socket.sendMessage(sender, { text: '❎ No relevant pastpaper results found.' }, { quoted: msg });
+    }
+
+    // Take top 5 results
+    const results = filtered.slice(0, 5);
+
+    // Build caption
+    let caption = `📚 *Top Pastpaper Results for:* ${q}\n\n`;
+    results.forEach((r, i) => {
+      caption += `*${i + 1}. ${r.title}*\n🔗 Preview: ${r.link}\n\n`;
+    });
+    caption += `*💬 Reply with number (1-${results.length}) to download/view.*`;
+
+    // Send first result image if any thumbnail, else just send text with first link preview
+    let sentMsg;
+    if (results[0].thumbnail) {
+      sentMsg = await socket.sendMessage(sender, {
+        image: { url: results[0].thumbnail },
+        caption
+      }, { quoted: msg });
+    } else {
+      sentMsg = await socket.sendMessage(sender, {
+        text: caption
+      }, { quoted: msg });
+    }
+
+    // Listener for user choosing an item (1..n)
+    const listener = async (update) => {
+      try {
+        const m = update.messages[0];
+        if (!m.message) return;
+
+        const text = m.message.conversation || m.message.extendedTextMessage?.text;
+        const isReply =
+          m.message.extendedTextMessage &&
+          m.message.extendedTextMessage.contextInfo?.stanzaId === sentMsg.key.id;
+
+        if (isReply && ['1','2','3','4','5'].includes(text)) {
+          const index = parseInt(text, 10) - 1;
+          const selected = results[index];
+          if (!selected) return;
+
+          // show processing reaction
+          await socket.sendMessage(sender, { react: { text: '⏳', key: m.key } });
+
+          // Call download API to get direct pdf(s)
+          try {
+            const dlApi = `https://pp-api-beta.vercel.app/api/download?url=${encodeURIComponent(selected.link)}`;
+            const { data: dlData } = await axios.get(dlApi);
+
+            if (!dlData?.found || !dlData.pdfs || dlData.pdfs.length === 0) {
+              await socket.sendMessage(sender, { react: { text: '❌', key: m.key } });
+              await socket.sendMessage(sender, { text: '❎ No direct PDF found for that page.' }, { quoted: m });
+              // cleanup
+              socket.ev.off('messages.upsert', listener);
+              return;
+            }
+
+            const pdfs = dlData.pdfs; // array of URLs
+
+            if (pdfs.length === 1) {
+              // single pdf -> send directly
+              const pdfUrl = pdfs[0];
+              await socket.sendMessage(sender, { react: { text: '⬇️', key: m.key } });
+
+              await socket.sendMessage(sender, {
+                document: { url: pdfUrl },
+                mimetype: 'application/pdf',
+                fileName: `${selected.title}.pdf`,
+                caption: `📄 ${selected.title}`
+              }, { quoted: m });
+
+              await socket.sendMessage(sender, { react: { text: '✅', key: m.key } });
+
+              socket.ev.off('messages.upsert', listener);
+            } else {
+              // multiple pdfs -> list options and wait for choose
+              let desc = `📄 *${selected.title}* — multiple PDFs found:\n\n`;
+              pdfs.forEach((p, i) => {
+                desc += `*${i+1}.* ${p.split('/').pop() || `PDF ${i+1}`}\n`;
+              });
+              desc += `\n💬 Reply with number (1-${pdfs.length}) to download that PDF.`;
+
+              const infoMsg = await socket.sendMessage(sender, {
+                text: desc
+              }, { quoted: m });
+
+              // nested listener for pdf choice
+              const dlListener = async (dlUpdate) => {
+                try {
+                  const d = dlUpdate.messages[0];
+                  if (!d.message) return;
+
+                  const text2 = d.message.conversation || d.message.extendedTextMessage?.text;
+                  const isReply2 =
+                    d.message.extendedTextMessage &&
+                    d.message.extendedTextMessage.contextInfo?.stanzaId === infoMsg.key.id;
+
+                  if (isReply2) {
+                    if (!/^\d+$/.test(text2)) return;
+                    const dlIndex = parseInt(text2, 10) - 1;
+                    if (dlIndex < 0 || dlIndex >= pdfs.length) {
+                      return socket.sendMessage(sender, { text: '❎ Invalid option.' }, { quoted: d });
+                    }
+
+                    const finalPdf = pdfs[dlIndex];
+                    await socket.sendMessage(sender, { react: { text: '⬇️', key: d.key } });
+
+                    try {
+                      await socket.sendMessage(sender, {
+                        document: { url: finalPdf },
+                        mimetype: 'application/pdf',
+                        fileName: `${selected.title} (${dlIndex+1}).pdf`,
+                        caption: `📄 ${selected.title} (${dlIndex+1})`
+                      }, { quoted: d });
+
+                      await socket.sendMessage(sender, { react: { text: '✅', key: d.key } });
+                    } catch (err) {
+                      await socket.sendMessage(sender, { react: { text: '❌', key: d.key } });
+                      await socket.sendMessage(sender, { text: `❌ Download/send failed.\n\nDirect link:\n${finalPdf}` }, { quoted: d });
+                    }
+
+                    socket.ev.off('messages.upsert', dlListener);
+                    socket.ev.off('messages.upsert', listener);
+                  }
+                } catch (err) {
+                  // ignore inner errors but log if you want
+                }
+              };
+
+              socket.ev.on('messages.upsert', dlListener);
+              // keep outer listener off until user chooses or we cleanup inside dlListener
+            }
+
+          } catch (err) {
+            await socket.sendMessage(sender, { react: { text: '❌', key: m.key } });
+            await socket.sendMessage(sender, { text: `❌ Error fetching PDF: ${err.message}` }, { quoted: m });
+            socket.ev.off('messages.upsert', listener);
+          }
+        }
+      } catch (err) {
+        // ignore per-message listener errors
+      }
+    };
+
+    socket.ev.on('messages.upsert', listener);
+
+  } catch (err) {
+    await socket.sendMessage(sender, { react: { text: '❌', key: msg.key } });
+    await socket.sendMessage(sender, { text: `❌ ERROR: ${err.message}` }, { quoted: msg });
+  }
+  break;
+  }   
+        case 'ts': {
     const axios = require('axios');
 
     const q = msg.message?.conversation ||
@@ -7630,6 +7812,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
