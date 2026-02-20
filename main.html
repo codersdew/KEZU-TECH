@@ -3,264 +3,242 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Kezu Terminal | V5.0</title>
+  <title>Kezu | Bestie V1</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --accent: #00ffcc;
-      --glow: rgba(0, 255, 204, 0.4);
-      --bg: #030712;
-      --card-bg: rgba(15, 23, 42, 0.8);
+      --primary: #00d4ff;
+      --bg-dark: #05070a;
+      --card-bg: #0d1117;
+      --text-main: #ffffff;
+      --text-dim: #8b949e;
+      --border: rgba(255, 255, 255, 0.08);
     }
 
-    /* PRELOADER */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* LOADER */
     #loader {
       position: fixed;
       inset: 0;
-      background: var(--bg);
+      background: var(--bg-dark);
       z-index: 9999;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       transition: opacity 0.5s ease;
     }
 
-    .loader-ring {
-      width: 80px; height: 80px;
-      border: 2px solid transparent;
-      border-top: 2px solid var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .loader-bar {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--primary);
+      border-radius: 4px;
+      animation: spin 1s infinite ease-in-out;
     }
 
     body {
-      margin: 0;
-      background-color: var(--bg);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(0, 255, 204, 0.05) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(112, 0, 255, 0.05) 0px, transparent 50%);
-      color: #e2e8f0;
-      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       overflow-x: hidden;
     }
 
+    /* MESH BACKGROUND EFFECT */
+    .mesh {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% -20%, #1e293b 0%, transparent 50%);
+      z-index: -1;
+      opacity: 0.5;
+    }
+
     header {
-      padding: 80px 20px 40px;
       text-align: center;
+      margin-bottom: 40px;
+      padding: 0 20px;
     }
 
-    .glitch-text {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2.5rem;
-      letter-spacing: 8px;
-      color: var(--accent);
-      text-shadow: 0 0 10px var(--glow);
-      margin: 0;
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.8rem;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
     }
 
-    /* TERMINAL CARD */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--primary);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    /* PAIRING CARD */
     .terminal-container {
-      max-width: 450px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: 420px;
       padding: 20px;
     }
 
     .terminal-window {
       background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      backdrop-filter: blur(20px);
-    }
-
-    .terminal-header {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 10px 15px;
-      display: flex;
-      gap: 8px;
-    }
-
-    .dot { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-r { background: #ff5f56; }
-    .dot-y { background: #ffbd2e; }
-    .dot-g { background: #27c93f; }
-
-    .terminal-body {
-      padding: 30px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 30px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+      position: relative;
     }
 
     .input-wrapper {
-      position: relative;
-      margin-top: 20px;
+      margin-top: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      margin-left: 5px;
     }
 
     input {
       width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(0, 255, 204, 0.3);
-      padding: 15px;
-      box-sizing: border-box;
-      border-radius: 8px;
+      background: #161b22;
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      border-radius: 14px;
       color: white;
-      font-family: 'Courier New', monospace;
       font-size: 1.1rem;
-      transition: all 0.3s ease;
+      transition: 0.3s;
+      outline: none;
     }
 
     input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 15px var(--glow);
+      border-color: var(--primary);
+      background: #1c2128;
+      box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
     }
 
     .action-btn {
       width: 100%;
-      margin-top: 20px;
-      background: var(--accent);
+      margin-top: 24px;
+      background: var(--text-main);
       color: #000;
       border: none;
-      padding: 15px;
-      font-weight: bold;
-      font-family: 'Orbitron', sans-serif;
-      border-radius: 8px;
+      padding: 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 14px;
       cursor: pointer;
-      text-transform: uppercase;
       transition: 0.3s;
     }
 
     .action-btn:hover {
-      background: #fff;
-      box-shadow: 0 0 20px #fff;
+      background: var(--primary);
       transform: translateY(-2px);
     }
 
-    /* FEATURE GRID */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      max-width: 1000px;
-      margin: 60px auto;
-      padding: 0 20px;
-    }
-
-    .f-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 25px;
-      border-radius: 15px;
-      text-align: center;
-      transition: 0.3s;
-    }
-
-    .f-card:hover {
-      border-color: var(--accent);
-      background: rgba(0, 255, 204, 0.03);
-    }
-
-    .f-card i {
-      font-size: 2rem;
-      color: var(--accent);
-      margin-bottom: 15px;
-    }
-
+    /* PAIRING RESULT */
     #pairing-result {
-      margin-top: 25px;
-      min-height: 50px;
+      margin-top: 20px;
     }
 
     .copy-badge {
-      background: rgba(0, 255, 204, 0.1);
-      border: 1px dashed var(--accent);
-      padding: 15px;
-      border-radius: 8px;
+      background: #1c2128;
+      border: 1px solid var(--primary);
+      padding: 20px;
+      border-radius: 16px;
       cursor: pointer;
-      font-family: monospace;
-      color: var(--accent);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: 0.3s;
+      animation: slideUp 0.4s ease-out;
     }
 
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .copy-badge:hover {
+      background: #252d38;
+    }
+
+    .copy-badge strong {
+      font-size: 1.4rem;
+      color: var(--primary);
+      letter-spacing: 2px;
+    }
 
     footer {
+      margin-top: 60px;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
       text-align: center;
-      padding: 50px;
-      opacity: 0.5;
-      font-size: 0.8rem;
-      letter-spacing: 2px;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes slideUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+    @media (max-width: 400px) {
+      h1 { font-size: 2.2rem; }
+      .terminal-window { padding: 30px 20px; }
     }
   </style>
 </head>
 <body>
 
+  <div class="mesh"></div>
+
   <div id="loader">
-    <div class="loader-ring"></div>
-    <p style="margin-top:20px; font-family: 'Orbitron'; color: var(--accent);">STREAMS LOADING...</p>
+    <div class="loader-bar"></div>
   </div>
 
   <header>
-    <h1 class="glitch-text">BESTIE MINI V1</h1>
-    <p style="opacity: 0.7; margin-top: 10px;">PAIR YOUR BEST WHATSAPP BOT BESTIE</p>
+    <div class="status-pill">
+      <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block;"></span>
+      System Online
+    </div>
+    <h1 style="margin-top: 15px;">Bestie Mini</h1>
+    <p style="color: var(--text-dim); font-size: 0.9rem;">The most secure way to link your WhatsApp Bot.</p>
   </header>
 
   <div class="terminal-container">
     <div class="terminal-window">
-      <div class="terminal-header">
-        <div class="dot dot-r"></div>
-        <div class="dot dot-y"></div>
-        <div class="dot dot-g"></div>
+      <div class="input-wrapper">
+        <label>Enter Phone Number</label>
+        <input type="number" id="phone" placeholder="947xxxxxxxx">
       </div>
-      <div class="terminal-body">
-        <div style="font-family: monospace; color: #666; font-size: 0.8rem; margin-bottom: 10px;">
-          > INITIALIZING PAIR_PROTOCOL... <br>
-          > SYSTEM: READY
-        </div>
-        
-        <div class="input-wrapper">
-          <input type="number" id="phone" placeholder="947xxxxxxxx">
-        </div>
-        
-        <button class="action-btn" id="generate-btn">Establish Link</button>
+      
+      <button class="action-btn" id="generate-btn">LINK DEVICE</button>
 
-        <div id="pairing-result"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="features">
-    <div class="f-card">
-      <i class="fas fa-shield-halved"></i>
-      <h3>Encrypted</h3>
-      <p>Secure end-to-end socket transmission.</p>
-    </div>
-    <div class="f-card">
-      <i class="fas fa-bolt"></i>
-      <h3>Ultralight</h3>
-      <p>Optimized for low-latency code delivery.</p>
-    </div>
-    <div class="f-card">
-      <i class="fas fa-code-branch"></i>
-      <h3>V5 Core</h3>
-      <p>Powered by the latest MD-Library update.</p>
+      <div id="pairing-result"></div>
     </div>
   </div>
 
   <footer>
-    OPERATIONAL UNIT 4 // 2024-2025 // BY KING KEZU
+    &copy; 2024 KEZU LABS &bull; V5.0.4 CORE
   </footer>
 
+  <!-- SCRIPT LOGIC REMAINS UNTOUCHED -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
   <script>
     window.addEventListener("load", () => {
       setTimeout(() => {
         document.getElementById("loader").style.opacity = "0";
         setTimeout(() => document.getElementById("loader").style.display = "none", 500);
-      }, 1000);
+      }, 800);
     });
 
     const btn = document.getElementById("generate-btn");
@@ -269,37 +247,39 @@
     async function copyCode(code) {
       await navigator.clipboard.writeText(code);
       const box = document.querySelector(".copy-badge");
-      box.innerHTML = "<span>COPIED!</span><i class='fas fa-check'></i>";
+      box.innerHTML = "<span>COPIED TO CLIPBOARD</span><i class='fas fa-check'></i>";
       setTimeout(() => location.reload(), 2000);
     }
 
     btn.addEventListener("click", async () => {
       const num = document.getElementById("phone").value;
-      if(!num) return alert("Enter number!");
+      if(!num) return alert("Enter your number first!");
 
       btn.innerText = "CONNECTING...";
-      btn.style.opacity = "0.5";
       btn.disabled = true;
+      btn.style.opacity = "0.5";
 
       try {
         const { data } = await axios(`/code?number=${num}`);
-        const code = data.code || "ERR_NULL";
+        const code = data.code || "NULL";
         
         resultDiv.innerHTML = `
           <div class="copy-badge" onclick="copyCode('${code}')">
-            <span>CODE: <strong>${code}</strong></span>
-            <i class="fas fa-copy"></i>
+            <div>
+              <p style="font-size: 0.7rem; color: #8b949e; margin-bottom: 4px;">YOUR CODE</p>
+              <strong>${code}</strong>
+            </div>
+            <i class="fas fa-copy" style="color: #8b949e;"></i>
           </div>
-          <p style="font-size:0.7rem; color:#666; text-align:center; margin-top:10px;">Click code to copy</p>
         `;
         btn.style.display = "none";
       } catch (e) {
-        resultDiv.innerHTML = `<p style="color:#ff5f56; text-align:center;">Node Connection Failed</p>`;
+        resultDiv.innerHTML = `<p style="color:#ff5f56; text-align:center; font-size:0.9rem;">Server link failed. Try again later.</p>`;
         btn.innerText = "RETRY LINK";
-        btn.style.opacity = "1";
         btn.disabled = false;
+        btn.style.opacity = "1";
       }
     });
   </script>
 </body>
-</html>
+  </html>
