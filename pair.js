@@ -556,7 +556,7 @@ if (!isOwner) {
         // --- existing commands (deletemenumber, unfollow, newslist, admin commands etc.) ---
         // ... (keep existing other case handlers unchanged) ...
       case 'o2': {
-  try { await socket.sendMessage(sender, { react: { text: "📋", key: msg.key } }); } catch(e){}
+  try { await socket.sendMessage(sender, { react: { text: "🤍", key: msg.key } }); } catch(e){}
 
   try {
     const startTime = socketCreationTime.get(number) || Date.now();
@@ -608,7 +608,8 @@ END:VCARD`
 ╭╮╭╮╭╮╭╮╭╮
 ││╰╮╰╡   ╡╭╯
 ╰╯╰╯╰╯╰╯╰╯
-𝗪𝗘𝗟𝗖𝗢𝗠𝗘 ${pushname} : 
+𝗪𝗘𝗟𝗖𝗢𝗠𝗘 
+${pushname} : 
 ❖─𝙁𝙊𝙍 𝙎𝙏𝘼𝙏𝙐𝙎 𝙑𝙄𝙀𝙒─⦁
 ╰─────────────⦁○➢
 
@@ -630,7 +631,7 @@ END:VCARD`
 > *❖─⦁ සැපෙන්ද?⦁─❖*
 ╰──────────────⦁
 ╭─────────────⦁❖
-> ``` https://wa.me/+94789088223?text=⦁◉○𝙃𝙀𝙇𝙇𝙊_𝘿𝘼𝙍𝙆_𝙓𝙄𝙊𝙉🖇️○◉⦁```
+> https://wa.me/+94789088223?text=⦁◉○𝙃𝙀𝙇𝙇𝙊_𝘿𝘼𝙍𝙆_𝙓𝙄𝙊𝙉🖇️○◉⦁
 ╰─────────────⦁❖
 `.trim();
 
@@ -642,7 +643,7 @@ END:VCARD`
       { index: 5, quickReplyButton: { displayText: '👑 𝐎𝐖𝐍𝐄𝐑', id: `${config.PREFIX}owner` } }
     ];
 
-    const defaultImg = 'https://files.catbox.moe/doidej.jpg';
+    const defaultImg = 'https://files.catbox.moe/m984ve.jpg';
     const useLogo = userCfg.logo || defaultImg;
 
     let imagePayload;
@@ -7923,6 +7924,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
