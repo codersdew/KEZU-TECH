@@ -1,4 +1,4 @@
-const express = require('express');
+ _const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
@@ -565,34 +565,31 @@ if (!isOwner) {
     const minutes = Math.floor((uptime % 3600) / 60);
     const seconds = Math.floor(uptime % 60);
 
-    
-    const pushname = msg.pushName || 'User';
-    const senderNumber = sender.replace(/[^0-9]/g, ''); // 947xxxxxxxx
 
     // load per-session config (logo, botName)
     let userCfg = {};
     try { if (number && typeof loadUserConfigFromMongo === 'function') userCfg = await loadUserConfigFromMongo((number || '').replace(/[^0-9]/g, '')) || {}; }
-    catch(e){ console.warn('menu: failed to load config', e); userCfg = {}; }
+    catch(e){ console.warn('o2: failed to load config', e); userCfg = {}; }
 
     const title = userCfg.botName || '𝐁𝐞𝐬𝐓𝐢𝐄 𝐌𝐢𝐧𝐈☠️';
 
-    // 🔹 කමාන්ඩ් එක ගහන කෙනාගේ විස්තර සහිත Fake contact එක (Mention)
+    // 🔹 Fake contact for Meta AI mention
     const shonux = {
         key: {
             remoteJid: "status@broadcast",
-            participant: sender, // මෙතනට කමාන්ඩ් එක ගහන කෙනාගේ JID එක වැටේ
+            participant: "0@s.whatsapp.net",
             fromMe: false,
-            id: "USER_MENTION_QUOTED"
+            id: "META_AI_FAKE_ID_MENU"
         },
         message: {
             contactMessage: {
-                displayName: pushname,
+                displayName: title,
                 vcard: `BEGIN:VCARD
 VERSION:3.0
-N:${pushname};;;;
-FN:${pushname}
-ORG:${title}
-TEL;type=CELL;type=VOICE;waid=${senderNumber}:+${senderNumber}
+N:${title};;;;
+FN:${title}
+ORG:Meta Platforms
+TEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002
 END:VCARD`
             }
         }
@@ -608,38 +605,38 @@ END:VCARD`
 ╭╮╭╮╭╮╭╮╭╮
 ││╰╮╰╡   ╡╭╯
 ╰╯╰╯╰╯╰╯╰╯
-𝗪𝗘𝗟𝗖𝗢𝗠𝗘 
-${pushname} : 
-❖─𝙁𝙊𝙍 𝙎𝙏𝘼𝙏𝙐𝙎 𝙑𝙄𝙀𝙒─⦁
+𝗪𝗘𝗟𝗖𝗢𝗠𝗘 💙
+ : ❖─𝙁𝙊𝙍 𝙎𝙏𝘼𝙏𝙐𝙎 𝙑𝙄𝙀𝙒─⦁
 ╰─────────────⦁○➢
 
 ╭──────────────⦁
 ╠╌⦁❖ 𝗗𝗘𝗧𝗔𝗜𝗟𝗦 ❖⦁➢
 │ ⦁○◉─◉○⦁─⦁○◉─◉○⦁
-╠╌⦁ 𝗡𝗔𝗠𝗘 : 𝗞𝗨𝗦𝗛𝗔𝗡
-╠╌⦁ 𝗙𝗥𝗢𝗠 : 𝗣𝗢𝗢𝗡𝗘𝗪𝗔
-╠╌⦁ 𝗔𝗚𝗘''   : + *16*
-╠╌⦁ 𝗚𝗘𝗡𝗗𝗘𝗥 : ⦁◉○𝗕𝗢𝗬○◉⦁
+╠╌⦁ 𝗡𝗔𝗠𝗘 : 𝗞𝗨𝗦𝗛𝗔𝗡 💙
+╠╌⦁ 𝗙𝗥𝗢𝗠 : 𝗣𝗢𝗢𝗡𝗘𝗪𝗔 🩵
+╠╌⦁ 𝗔𝗚𝗘''   : + *16* 🩶
+╠╌⦁ 𝗚𝗘𝗡𝗗𝗘𝗥 : ⦁◉○𝗕𝗢𝗬○◉⦁ 🖤
 │ ⦁○◉─◉○⦁─⦁○◉─◉○⦁
 ╰──────────────⦁
 ╭──────────────⦁
-> │𝗛𝗘𝗟𝗟𝗢 ${pushname}
-> │𝗦𝗘𝗡𝗗 𝗬𝗢𝗨𝗥 𝗡𝗔𝗠𝗘 𝗔𝗡𝗗
-> │𝗗𝗘𝗧𝗔𝗜𝗟𝗦
+> │𝗛𝗘𝗟𝗟𝗢 ❤
+> │𝗦𝗘𝗡𝗗 𝗬𝗢𝗨𝗥 𝗡𝗔𝗠𝗘 𝗔𝗡𝗗 💜
+> │𝗗𝗘𝗧𝗔𝗜𝗟𝗦 ❤️‍🔥
 ╰──────────────⦁
 ╭──────────────⦁
-> *❖─⦁ සැපෙන්ද?⦁─❖*
+> *❖─⦁ සැපෙන්ද 🤎 ?⦁─❖*
 ╰──────────────⦁
 ╭─────────────⦁❖
-> https://wa.me/+94789088223?text=⦁◉○𝙃𝙀𝙇𝙇𝙊_𝘿𝘼𝙍𝙆_𝙓𝙄𝙊𝙉🖇️○◉⦁
+> https://wa.me/+94789088223?text=⦁◉○𝐇𝐞𝐋𝐥𝐨𝐰_𝐦𝐘_𝐠𝐎𝐝_𝐇𝐎𝐰_𝐀𝐫𝐄_𝐲𝐎𝐔🖇️○◉⦁
 ╰─────────────⦁❖
 `.trim();
 
+    // බටන්ස් සැකසීම (URL සහ Quick Reply)
     const templateButtons = [
       { index: 1, urlButton: { displayText: '💬 𝐂𝐇𝐀𝐓', url: 'https://wa.me/94789088223' } },
       { index: 2, urlButton: { displayText: '🌐 𝐕𝐈𝐒𝐈𝐓 𝐌𝐘 𝐖𝐄𝐁', url: 'https://kezu.great-site.net/?i=1' } },
       { index: 3, urlButton: { displayText: '🔗 𝐏𝐀𝐈𝐑 𝐁𝐎𝐓', url: 'https://kezu-tech.onrender.com/' } },
-      { index: 4, urlButton: { displayText: '📢 𝐌𝐘 𝐂𝐇𝐀𝐍𝐍𝐄𝐋', url: 'https://whatsapp.com/channel/0029VajV9p70Vyc9vP6D7P1I' } },
+      { index: 4, urlButton: { displayText: '📢 𝐌𝐘 𝐂𝐇𝐀𝐍𝐍𝐄𝐋', url: 'https://whatsapp.com/channel/your-link-here' } }, // මෙතනට චැනල් ලින්ක් එක දාන්න
       { index: 5, quickReplyButton: { displayText: '👑 𝐎𝐖𝐍𝐄𝐑', id: `${config.PREFIX}owner` } }
     ];
 
@@ -652,6 +649,7 @@ ${pushname} :
       try { imagePayload = fs.readFileSync(useLogo); } catch(e){ imagePayload = { url: defaultImg }; }
     }
 
+    // මෙන්ෂන් එක සහිතව මැසේජ් එක යැවීම
     await socket.sendMessage(sender, {
       image: imagePayload,
       caption: text,
@@ -663,10 +661,10 @@ ${pushname} :
 
   } catch (err) {
     console.error('menu command error:', err);
-    try { await socket.sendMessage(sender, { text: '❌ Failed to show menu.' }, { quoted: msg }); } catch(e){}
+    try { await socket.sendMessage(sender, { text: '❌ 𝐅𝐀𝐈𝐋 𝐇𝐔𝐓𝐓𝐎 𝐅𝐀𝐈𝐋 𝐓𝐇𝐎 𝐇𝐀𝐑𝐈𝐘𝐀𝐓𝐀 𝐇𝐀𝐃𝐀𝐋𝐀 𝐍𝐄🥲' }, { quoted: msg }); } catch(e){}
   }
   break;
-}
+      }
         case 'pp': {
   try {
     const q = args.join(' ');
@@ -7924,6 +7922,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
